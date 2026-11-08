@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentasi Web Data Buku Perpustakaan - Laravel</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        laravel: '#FF2D20',
+                        brand: {
+                            50: '#fff5f5',
+                            100: '#ffe3e3',
+                            500: '#ff2d20',
+                            600: '#e02216',
+                            700: '#b8170e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Highlight.js for Syntax Highlighting -->
+    <link rel="stylesheet" id="hljs-theme" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Highlight.js Extra Languages -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/powershell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        pre code { font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; line-height: 1.6; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.7); }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 min-h-screen transition-colors duration-200">
+
+    <!-- Toast Notification for Copy -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 border border-slate-700 dark:border-slate-300">
+        <i class="fa-solid fa-circle-check text-green-400 dark:text-green-600 text-lg"></i>
+        <span id="toast-message" class="text-sm font-medium">Kode berhasil disalin ke clipboard!</span>
+    </div>
+
+    <!-- Header / Top Navbar -->
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand & Logo -->
+                <div class="flex items-center gap-3">
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-md text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-laravel to-red-600 flex items-center justify-center text-white shadow-md shadow-laravel/30">
+                        <i class="fa-solid fa-book-bookmark text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-laravel to-red-500 bg-clip-text text-transparent">Docs Perpustakaan</span>
+                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-laravel/10 text-laravel border border-laravel/20">Laravel 13</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Sistem Informasi Data Buku Perpustakaan (MVC + CRUD)</p>
+                    </div>
+                </div>
+
+                <!-- Search & Actions -->
+                <div class="flex items-center gap-3">
+                    <!-- Search Input -->
+                    <div class="relative hidden sm:block w-64 md:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="doc-search" placeholder="Cari materi atau nama file..." 
+                            class="w-full pl-9 pr-4 py-1.5 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-laravel/50 transition-all">
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" title="Ubah Tema Mode" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <i class="fa-solid fa-sun dark:hidden text-amber-500"></i>
+                        <i class="fa-solid fa-moon hidden dark:block text-indigo-400"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Sidebar Navigation / Table of Contents -->
+            <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 transform -translate-x-full lg:translate-x-0 lg:static lg:w-64 lg:p-0 lg:bg-transparent lg:border-none transition-transform duration-300 ease-in-out lg:block shrink-0">
+                <div class="flex items-center justify-between lg:hidden mb-6">
+                    <span class="font-bold text-lg text-slate-800 dark:text-white">Menu Navigasi</span>
+                    <button id="close-sidebar-btn" class="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="sticky top-24 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar pr-2">
+                    <div>
+                        <h3 class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Daftar Isi Dokumentasi</h3>
+                        <nav id="toc-nav" class="space-y-1">
+                            <a href="#fitur" class="toc-item flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-laravel transition-colors">
+                                <i class="fa-solid fa-list-check w-4"></i> 1. Fitur Aplikasi
+                            </a>
+                            <a href="#persiapan" class="toc-item flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-laravel transition-colors">
+                                <i class="fa-solid fa-gears w-4"></i> 2. Persiapan & Env
+                            </a>
+                            <a href="#artisan" class="toc-item flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-laravel transition-colors">
+                                <i class="fa-solid fa-terminal w-4"></i> 3. Perintah Artisan
+                            </a>
+                            <a href="#struktur-file" class="toc-item flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-laravel transition-colors">
+                                <i class="fa-solid fa-folder-tree w-4"></i> 4. Struktur File
+                            </a>
+                            <a href="#kode-sumber" class="toc-item flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-laravel transition-colors">
+                                <i class="fa-solid fa-code w-4"></i> 5. Kode Sumber Lengkap
+                            </a>
+                            
+                            <!-- Sub-items Kode Sumber -->
+                            <div class="pl-6 space-y-1 my-1 border-l-2 border-slate-200 dark:border-slate-800 text-xs">
+                                <a href="#code-migration" class="toc-subitem block px-2 py-1.5 text-slate-500 hover:text-laravel">5.1 Migration</a>
+                                <a href="#code-model" class="toc-subitem block px-2 py-1.5 text-slate-500 hover:text-laravel">5.2 Model (Book.php)</a>
+                                <a href="#code-controller" class="toc-subitem block px-2 py-1.5 text-slate-500 hover:text-laravel">5.3 Controller</a>
+                                <a href="#code-routing" class="toc-subitem block px-2 py-1.5 text-slate-500 hover:text-laravel">5.4 Routing</a>
+                                <a href="#code-layout" class="toc-subitem block px-2 py-1.5 text-slate-500 hover:text-laravel">5.5 Layout Blade</a>
+                                <a href="#code-index" class="toc-subitem block px-2 py-1.5 text-slate-500 hover:text-laravel">5.6 View Index</a>
+                                <a href="#code-create" class="toc-subitem block px-2 py-1.5 text-slate-500 hover:text-laravel">5.7 View Create</a>
+                                <a href="#code-edit" class="toc-subitem block px-2 py-1.5 text-slate-500 hover:text-laravel">5.8 View Edit</a>
+                                <a href="#code-show" class="toc-subitem block px-2 py-1.5 text-slate-500 hover:text-laravel">5.9 View Show</a>
+                            </div>
+
+                            <a href="#menjalankan" class="toc-item flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-laravel transition-colors">
+                                <i class="fa-solid fa-play w-4"></i> 6. Menjalankan App
+                            </a>
+                            <a href="#alur-mvc" class="toc-item flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-laravel transition-colors">
+                                <i class="fa-solid fa-diagram-project w-4"></i> 7. Penjelasan Alur MVC
+                            </a>
+                            <a href="#pengujian" class="toc-item flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-laravel transition-colors">
+                                <i class="fa-solid fa-vial-circle-check w-4"></i> 8. Pengujian Manual
+                            </a>
+                            <a href="#ringkasan-route" class="toc-item flex items-center gap-2 px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-laravel transition-colors">
+                                <i class="fa-solid fa-route w-4"></i> 9. Ringkasan Route
+                            </a>
+                        </nav>
+                    </div>
+
+                    <!-- School / Project Info Widget -->
+                    <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 text-xs space-y-2">
+                        <div class="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-laravel"></i> SMK Multi Karya
+                        </div>
+                        <p class="text-slate-500 dark:text-slate-400">Pemrograman Web &bull; Kelas XII RPL (Fase F)</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Backdrop for Mobile Sidebar -->
+            <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+            <!-- Main Documentation Body -->
+            <main class="flex-1 min-w-0 space-y-12">
+                
+                <!-- Hero Header Banner -->
+                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-red-950 p-8 text-white shadow-xl">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                        <i class="fa-brands fa-laravel text-[220px]"></i>
+                    </div>
+                    <div class="relative z-10 max-w-2xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-laravel/20 border border-laravel/40 text-laravel text-xs font-semibold mb-4">
+                            <i class="fa-solid fa-book"></i> Modul Praktik LKPD
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-3 leading-tight">
+                            Panduan Membuat Web Data Buku Perpustakaan dengan Laravel
+                        </h1>
+                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                            Dokumen ini menjelaskan secara lengkap implementasi aplikasi pengelola data buku perpustakaan menggunakan framework **Laravel**, arsitektur **Model-View-Controller (MVC)**, resource routing, validasi input, serta fungsi **CRUD** (*Create, Read, Update, Delete*).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 1. Fitur Aplikasi -->
+                <section id="fitur" class="doc-section space-y-4 scroll-mt-24">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="w-8 h-8 rounded-lg bg-laravel/10 text-laravel flex items-center justify-center font-bold">1</span>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Fitur Aplikasi</h2>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 shadow-sm flex items-start gap-3">
+                            <i class="fa-solid fa-table-list text-laravel mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-sm">Daftar Buku</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Melihat daftar seluruh buku dalam format tabel interaktif.</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 shadow-sm flex items-start gap-3">
+                            <i class="fa-solid fa-square-plus text-emerald-500 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-sm">Tambah Buku Baru</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Form untuk menambahkan data koleksi buku baru ke database.</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 shadow-sm flex items-start gap-3">
+                            <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-sm">Detail Informasi</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Melihat rincian lengkap atribut dari suatu buku spesifik.</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 shadow-sm flex items-start gap-3">
+                            <i class="fa-solid fa-pen-to-square text-amber-500 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-sm">Ubah & Edit Data</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Memperbarui informasi buku yang sudah ada.</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 shadow-sm flex items-start gap-3">
+                            <i class="fa-solid fa-trash-can text-red-500 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-sm">Hapus Data</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Menghapus data buku disertai dialog konfirmasi keamanan.</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 shadow-sm flex items-start gap-3">
+                            <i class="fa-solid fa-shield-halved text-purple-500 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-sm">Validasi & Alert</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Validasi data ketat dan pesan notifikasi sukses/gagal.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Persiapan -->
+                <section id="persiapan" class="doc-section space-y-4 scroll-mt-24">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="w-8 h-8 rounded-lg bg-laravel/10 text-laravel flex items-center justify-center font-bold">2</span>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Persiapan Lingkungan Pengembangan</h2>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Proyek ini menggunakan **Laravel 13** dan memerlukan **PHP 8.3** atau lebih baru. Pastikan PHP, Composer, dan Node.js/npm telah terpasang di komputer Anda.
+                    </p>
+
+                    <!-- Code Block: Check Versions -->
+                    <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                            <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-terminal text-laravel"></i> PowerShell / Terminal - Periksa Versi</span>
+                            <button onclick="copyCode(this, 'code-prep-ver')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                <i class="fa-regular fa-copy"></i> <span>Salin</span>
+                            </button>
+                        </div>
+                        <pre class="p-4 overflow-x-auto"><code id="code-prep-ver" class="language-powershell">php -v
+composer -V
+node -v
+npm -v</code></pre>
+                    </div>
+
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Jika memulai dari proyek Laravel yang sudah ada:</p>
+
+                    <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                            <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-folder-open text-laravel"></i> Inisialisasi Project</span>
+                            <button onclick="copyCode(this, 'code-prep-install')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                <i class="fa-regular fa-copy"></i> <span>Salin</span>
+                            </button>
+                        </div>
+                        <pre class="p-4 overflow-x-auto"><code id="code-prep-install" class="language-powershell">cd C:\laragon\www\cobaUPSM
+composer install
+Copy-Item .env.example .env
+php artisan key:generate</code></pre>
+                    </div>
+
+                    <!-- Callout Warning -->
+                    <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-sm flex items-start gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-lg mt-0.5"></i>
+                        <div>
+                            <strong>Peringatan Keamanan:</strong> Jangan menyalin atau mengunggah isi berkas <code>.env</code> ke dokumentasi atau repositori publik karena berkas tersebut menyimpan kredensial database dan kunci rahasia aplikasi.
+                        </div>
+                    </div>
+
+                    <h3 class="text-md font-semibold text-slate-800 dark:text-slate-200 pt-2">Konfigurasi Database (SQLite)</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">
+                        Proyek ini secara default memakai SQLite. Buat berkas database jika belum ada:
+                    </p>
+
+                    <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                            <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-database text-laravel"></i> Buat File SQLite</span>
+                            <button onclick="copyCode(this, 'code-prep-sqlite')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                <i class="fa-regular fa-copy"></i> <span>Salin</span>
+                            </button>
+                        </div>
+                        <pre class="p-4 overflow-x-auto"><code id="code-prep-sqlite" class="language-powershell">New-Item -ItemType File -Force database\database.sqlite</code></pre>
+                    </div>
+
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Pastikan baris berikut pada berkas <code>.env</code> terkonfigurasi:</p>
+
+                    <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                            <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-sliders text-laravel"></i> .env</span>
+                            <button onclick="copyCode(this, 'code-prep-env')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                <i class="fa-regular fa-copy"></i> <span>Salin</span>
+                            </button>
+                        </div>
+                        <pre class="p-4 overflow-x-auto"><code id="code-prep-env" class="language-ini">DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite</code></pre>
+                    </div>
+                </section>
+
+                <!-- 3. Perintah Artisan -->
+                <section id="artisan" class="doc-section space-y-4 scroll-mt-24">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="w-8 h-8 rounded-lg bg-laravel/10 text-laravel flex items-center justify-center font-bold">3</span>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Membuat Struktur Komponen dengan Artisan</h2>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">
+                        Gunakan CLI `php artisan` untuk membuat kerangka file Model, Controller, dan Migration:
+                    </p>
+
+                    <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                            <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-terminal text-laravel"></i> Artisan Commands</span>
+                            <button onclick="copyCode(this, 'code-artisan')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                <i class="fa-regular fa-copy"></i> <span>Salin</span>
+                            </button>
+                        </div>
+                        <pre class="p-4 overflow-x-auto"><code id="code-artisan" class="language-powershell">php artisan make:model Book -m
+php artisan make:controller BookController --resource --model=Book</code></pre>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs space-y-2 text-slate-600 dark:text-slate-300">
+                        <p><strong>Catatan Perintah Artisan:</strong></p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <td><code>make:model Book -m</code>: Membuat Model <code>Book</code> sekaligus file Migration tabel database.</td>
+                            <td><code>make:controller BookController --resource --model=Book</code>: Membuat Resource Controller lengkap dengan fungsi CRUD dan implicit Route Model Binding.</td>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 4. Struktur File -->
+                <section id="struktur-file" class="doc-section space-y-4 scroll-mt-24">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="w-8 h-8 rounded-lg bg-laravel/10 text-laravel flex items-center justify-center font-bold">4</span>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Struktur File Aplikasi</h2>
+                    </div>
+
+                    <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                            <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-sitemap text-laravel"></i> Directory Tree</span>
+                            <button onclick="copyCode(this, 'code-tree')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                <i class="fa-regular fa-copy"></i> <span>Salin</span>
+                            </button>
+                        </div>
+                        <pre class="p-4 overflow-x-auto"><code id="code-tree" class="language-plaintext">app/
+├── Http/
+│   └── Controllers/
+│       └── BookController.php
+└── Models/
+    └── Book.php
+database/
+└── migrations/
+    └── 2026_11_06_021643_init_perpustakaan.php
+resources/
+└── views/
+    └── books/
+        ├── layout.blade.php
+        ├── index.blade.php
+        ├── create.blade.php
+        ├── edit.blade.php
+        └── show.blade.php
+routes/
+└── web.php</code></pre>
+                    </div>
+                </section>
+
+                <!-- 5. Kode Sumber Lengkap -->
+                <section id="kode-sumber" class="doc-section space-y-8 scroll-mt-24">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="w-8 h-8 rounded-lg bg-laravel/10 text-laravel flex items-center justify-center font-bold">5</span>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Kode Sumber Lengkap Aplikasi</h2>
+                    </div>
+
+                    <!-- 5.1 Migration -->
+                    <div id="code-migration" class="space-y-3 scroll-mt-24">
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span class="text-laravel">5.1</span> Migration — <code class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">database/migrations/2026_11_06_021643_init_perpustakaan.php</code>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Migration mendefinisikan tabel <code>books</code>. Kolom <code>kode_buku</code> memiliki indeks unik (unique index).
+                        </p>
+                        <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                                <span class="flex items-center gap-2 font-mono"><i class="fa-brands fa-php text-blue-400"></i> Migration</span>
+                                <button onclick="copyCode(this, 'code-mig-src')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                    <i class="fa-regular fa-copy"></i> <span>Salin Kode</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 overflow-x-auto"><code id="code-mig-src" class="language-php">&lt;?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('books', function (Blueprint $table) {
+            $table->id();
+            $table->string('kode_buku')->unique();
+            $table->string('judul');
+            $table->string('penulis');
+            $table->string('penerbit');
+            $table->integer('tahun_terbit');
+            $table->integer('stok');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('books');
+    }
+};</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- 5.2 Model -->
+                    <div id="code-model" class="space-y-3 scroll-mt-24">
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span class="text-laravel">5.2</span> Model — <code class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">app/Models/Book.php</code>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Model Eloquent mewakili tabel <code>books</code>. Properti <code>$fillable</code> mengatur izin Mass Assignment.
+                        </p>
+                        <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                                <span class="flex items-center gap-2 font-mono"><i class="fa-brands fa-php text-blue-400"></i> Book.php</span>
+                                <button onclick="copyCode(this, 'code-model-src')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                    <i class="fa-regular fa-copy"></i> <span>Salin Kode</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 overflow-x-auto"><code id="code-model-src" class="language-php">&lt;?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Book extends Model
+{
+    use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array&lt;int, string&gt;
+     */
+    protected $fillable = [
+        'kode_buku',
+        'judul',
+        'penulis',
+        'penerbit',
+        'tahun_terbit',
+        'stok',
+    ];
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- 5.3 Controller -->
+                    <div id="code-controller" class="space-y-3 scroll-mt-24">
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span class="text-laravel">5.3</span> Controller — <code class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">app/Http/Controllers/BookController.php</code>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Controller menangani request HTTP, fungsi validasi form, serta interaksi dengan database melalui model Eloquent.
+                        </p>
+                        <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                                <span class="flex items-center gap-2 font-mono"><i class="fa-brands fa-php text-blue-400"></i> BookController.php</span>
+                                <button onclick="copyCode(this, 'code-ctrl-src')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                    <i class="fa-regular fa-copy"></i> <span>Salin Kode</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 overflow-x-auto"><code id="code-ctrl-src" class="language-php">&lt;?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Book;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
+class BookController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $books = Book::latest()->get();
+        return view('books.index', compact('books'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('books.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'kode_buku'    => ['required', 'string', 'unique:books,kode_buku'],
+            'judul'        => ['required', 'string'],
+            'penulis'      => ['required', 'string'],
+            'penerbit'     => ['required', 'string'],
+            'tahun_terbit' => ['required', 'integer', 'digits:4', 'min:1900', 'max:' . date('Y')],
+            'stok'         => ['required', 'integer', 'min:0'],
+        ], [
+            'kode_buku.required'    => 'Kode buku wajib diisi.',
+            'kode_buku.unique'      => 'Kode buku sudah terdaftar.',
+            'judul.required'        => 'Judul buku wajib diisi.',
+            'penulis.required'      => 'Penulis wajib diisi.',
+            'penerbit.required'     => 'Penerbit wajib diisi.',
+            'tahun_terbit.required' => 'Tahun terbit wajib diisi.',
+            'tahun_terbit.integer'  => 'Tahun terbit harus berupa angka.',
+            'tahun_terbit.digits'   => 'Tahun terbit harus 4 digit angka.',
+            'tahun_terbit.min'      => 'Tahun terbit minimal tahun 1900.',
+            'tahun_terbit.max'      => 'Tahun terbit tidak boleh melebihi tahun berjalan.',
+            'stok.required'         => 'Stok wajib diisi.',
+            'stok.integer'          => 'Stok harus berupa bilangan bulat.',
+            'stok.min'              => 'Stok minimal 0.',
+        ]);
+
+        Book::create($validated);
+
+        return redirect()->route('books.index')->with('success', 'Data buku berhasil ditambahkan!');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Book $book)
+    {
+        return view('books.show', compact('book'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Book $book)
+    {
+        return view('books.edit', compact('book'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Book $book)
+    {
+        $validated = $request->validate([
+            'kode_buku'    => ['required', 'string', Rule::unique('books', 'kode_buku')->ignore($book->id)],
+            'judul'        => ['required', 'string'],
+            'penulis'      => ['required', 'string'],
+            'penerbit'     => ['required', 'string'],
+            'tahun_terbit' => ['required', 'integer', 'digits:4', 'min:1900', 'max:' . date('Y')],
+            'stok'         => ['required', 'integer', 'min:0'],
+        ], [
+            'kode_buku.required'    => 'Kode buku wajib diisi.',
+            'kode_buku.unique'      => 'Kode buku sudah digunakan oleh buku lain.',
+            'judul.required'        => 'Judul buku wajib diisi.',
+            'penulis.required'      => 'Penulis wajib diisi.',
+            'penerbit.required'     => 'Penerbit wajib diisi.',
+            'tahun_terbit.required' => 'Tahun terbit wajib diisi.',
+            'tahun_terbit.integer'  => 'Tahun terbit harus berupa angka.',
+            'tahun_terbit.digits'   => 'Tahun terbit harus 4 digit angka.',
+            'tahun_terbit.min'      => 'Tahun terbit minimal tahun 1900.',
+            'tahun_terbit.max'      => 'Tahun terbit tidak boleh melebihi tahun berjalan.',
+            'stok.required'         => 'Stok wajib diisi.',
+            'stok.integer'          => 'Stok harus berupa bilangan bulat.',
+            'stok.min'              => 'Stok minimal 0.',
+        ]);
+
+        $book->update($validated);
+
+        return redirect()->route('books.index')->with('success', 'Data buku berhasil diperbarui!');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Book $book)
+    {
+        $book->delete();
+
+        return redirect()->route('books.index')->with('success', 'Data buku berhasil dihapus!');
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- 5.4 Routing -->
+                    <div id="code-routing" class="space-y-3 scroll-mt-24">
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span class="text-laravel">5.4</span> Routing — <code class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">routes/web.php</code>
+                        </h3>
+                        <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                                <span class="flex items-center gap-2 font-mono"><i class="fa-brands fa-php text-blue-400"></i> web.php</span>
+                                <button onclick="copyCode(this, 'code-route-src')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                    <i class="fa-regular fa-copy"></i> <span>Salin Kode</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 overflow-x-auto"><code id="code-route-src" class="language-php">&lt;?php
+
+use App\Http\Controllers\BookController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return redirect()->route('books.index');
+});
+
+Route::resource('books', BookController::class);</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- 5.5 Layout Blade -->
+                    <div id="code-layout" class="space-y-3 scroll-mt-24">
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span class="text-laravel">5.5</span> Master Layout — <code class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">resources/views/books/layout.blade.php</code>
+                        </h3>
+                        <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                                <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-code text-orange-400"></i> layout.blade.php</span>
+                                <button onclick="copyCode(this, 'code-layout-src')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                    <i class="fa-regular fa-copy"></i> <span>Salin Kode</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 overflow-x-auto"><code id="code-layout-src" class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Perpustakaan Digital - @yield('title', 'Sistem Informasi Buku')&lt;/title&gt;
+    &lt;!-- Bootstrap 5 CSS --&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+    &lt;!-- Bootstrap Icons --&gt;
+    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"&gt;
+    &lt;style&gt;
+        body { background-color: #f8f9fa; }
+        .navbar-brand { font-weight: 700; letter-spacing: 0.5px; }
+        .card { border-radius: 10px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class="d-flex flex-column min-vh-100"&gt;
+
+    &lt;!-- Navigasi Utama --&gt;
+    &lt;nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm"&gt;
+        &lt;div class="container"&gt;
+            &lt;a class="navbar-brand" href="{{ route('books.index') }}"&gt;
+                &lt;i class="bi bi-book-half me-2"&gt;&lt;/i&gt;Perpustakaan SMK Multi Karya
+            &lt;/a&gt;
+            &lt;button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"&gt;
+                &lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+            &lt;/button&gt;
+            &lt;div class="collapse navbar-collapse" id="navbarNav"&gt;
+                &lt;ul class="navbar-nav ms-auto"&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link {{ request()-&gt;routeIs('books.index') ? 'active' : '' }}" href="{{ route('books.index') }}"&gt;
+                            &lt;i class="bi bi-list-ul me-1"&gt;&lt;/i&gt;Daftar Buku
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link {{ request()-&gt;routeIs('books.create') ? 'active' : '' }}" href="{{ route('books.create') }}"&gt;
+                            &lt;i class="bi bi-plus-circle me-1"&gt;&lt;/i&gt;Tambah Buku
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/nav&gt;
+
+    &lt;!-- Content Container --&gt;
+    &lt;main class="container my-4 flex-grow-1"&gt;
+        @yield('content')
+    &lt;/main&gt;
+
+    &lt;!-- Footer --&gt;
+    &lt;footer class="bg-white text-center text-muted py-3 border-top mt-auto"&gt;
+        &lt;div class="container"&gt;
+            &lt;small&gt;&amp;copy; {{ date('Y') }} Sistem Informasi Perpustakaan - SMK Multi Karya&lt;/small&gt;
+        &lt;/div&gt;
+    &lt;/footer&gt;
+
+    &lt;!-- Bootstrap 5 JS Bundle --&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- 5.6 View Index -->
+                    <div id="code-index" class="space-y-3 scroll-mt-24">
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span class="text-laravel">5.6</span> Daftar Buku — <code class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">resources/views/books/index.blade.php</code>
+                        </h3>
+                        <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                                <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-code text-orange-400"></i> index.blade.php</span>
+                                <button onclick="copyCode(this, 'code-index-src')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                    <i class="fa-regular fa-copy"></i> <span>Salin Kode</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 overflow-x-auto"><code id="code-index-src" class="language-html">@extends('books.layout')
+
+@section('title', 'Daftar Buku')
+
+@section('content')
+&lt;div class="row"&gt;
+    &lt;div class="col-12"&gt;
+        &lt;div class="d-flex justify-content-between align-items-center mb-4"&gt;
+            &lt;h2 class="h3 text-dark fw-bold mb-0"&gt;
+                &lt;i class="bi bi-journals me-2 text-primary"&gt;&lt;/i&gt;Daftar Data Buku Perpustakaan
+            &lt;/h2&gt;
+            &lt;a href="{{ route('books.create') }}" class="btn btn-primary shadow-sm"&gt;
+                &lt;i class="bi bi-plus-lg me-1"&gt;&lt;/i&gt;Tambah Buku Baru
+            &lt;/a&gt;
+        &lt;/div&gt;
+
+        @if (session('success'))
+            &lt;div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert"&gt;
+                &lt;i class="bi bi-check-circle-fill me-2"&gt;&lt;/i&gt;{{ session('success') }}
+                &lt;button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+        @endif
+
+        &lt;div class="card shadow-sm border-0"&gt;
+            &lt;div class="card-body p-0"&gt;
+                &lt;div class="table-responsive"&gt;
+                    &lt;table class="table table-hover align-middle mb-0"&gt;
+                        &lt;thead class="table-light"&gt;
+                            &lt;tr&gt;
+                                &lt;th class="text-center" style="width: 50px;"&gt;No&lt;/th&gt;
+                                &lt;th&gt;Kode Buku&lt;/th&gt;
+                                &lt;th&gt;Judul Buku&lt;/th&gt;
+                                &lt;th&gt;Penulis&lt;/th&gt;
+                                &lt;th&gt;Penerbit&lt;/th&gt;
+                                &lt;th class="text-center"&gt;Tahun Terbit&lt;/th&gt;
+                                &lt;th class="text-center"&gt;Stok&lt;/th&gt;
+                                &lt;th class="text-center" style="width: 220px;"&gt;Aksi&lt;/th&gt;
+                            &lt;/tr&gt;
+                        &lt;/thead&gt;
+                        &lt;tbody&gt;
+                            @forelse ($books as $index => $book)
+                                &lt;tr&gt;
+                                    &lt;td class="text-center"&gt;{{ $index + 1 }}&lt;/td&gt;
+                                    &lt;td&gt;&lt;span class="badge bg-secondary font-monospace"&gt;{{ $book-&gt;kode_buku }}&lt;/span&gt;&lt;/td&gt;
+                                    &lt;td class="fw-semibold"&gt;{{ $book-&gt;judul }}&lt;/td&gt;
+                                    &lt;td&gt;{{ $book-&gt;penulis }}&lt;/td&gt;
+                                    &lt;td&gt;{{ $book-&gt;penerbit }}&lt;/td&gt;
+                                    &lt;td class="text-center"&gt;{{ $book-&gt;tahun_terbit }}&lt;/td&gt;
+                                    &lt;td class="text-center"&gt;
+                                        @if ($book-&gt;stok &gt; 0)
+                                            &lt;span class="badge bg-success"&gt;{{ $book-&gt;stok }}&lt;/span&gt;
+                                        @else
+                                            &lt;span class="badge bg-danger"&gt;Habis&lt;/span&gt;
+                                        @endif
+                                    &lt;/td&gt;
+                                    &lt;td class="text-center"&gt;
+                                        &lt;div class="btn-group btn-group-sm" role="group"&gt;
+                                            &lt;a href="{{ route('books.show', $book-&gt;id) }}" class="btn btn-info text-white" title="Detail"&gt;
+                                                &lt;i class="bi bi-eye"&gt;&lt;/i&gt; Detail
+                                            &lt;/a&gt;
+                                            &lt;a href="{{ route('books.edit', $book-&gt;id) }}" class="btn btn-warning text-dark" title="Edit"&gt;
+                                                &lt;i class="bi bi-pencil-square"&gt;&lt;/i&gt; Edit
+                                            &lt;/a&gt;
+                                            &lt;form action="{{ route('books.destroy', $book-&gt;id) }}" method="POST" class="d-inline"&gt;
+                                                @csrf
+                                                @method('DELETE')
+                                                &lt;button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data buku ini?')" title="Hapus"&gt;
+                                                    &lt;i class="bi bi-trash"&gt;&lt;/i&gt; Hapus
+                                                &lt;/button&gt;
+                                            &lt;/form&gt;
+                                        &lt;/div&gt;
+                                    &lt;/td&gt;
+                                &lt;/tr&gt;
+                            @empty
+                                &lt;tr&gt;
+                                    &lt;td colspan="8" class="text-center text-muted py-4"&gt;
+                                        &lt;i class="bi bi-inbox display-6 d-block mb-2"&gt;&lt;/i&gt;
+                                        Belum ada data buku yang tersimpan.
+                                    &lt;/td&gt;
+                                &lt;/tr&gt;
+                            @endforelse
+                        &lt;/tbody&gt;
+                    &lt;/table&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+@endsection</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- 5.7 View Create -->
+                    <div id="code-create" class="space-y-3 scroll-mt-24">
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span class="text-laravel">5.7</span> Form Tambah Buku — <code class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">resources/views/books/create.blade.php</code>
+                        </h3>
+                        <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                                <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-code text-orange-400"></i> create.blade.php</span>
+                                <button onclick="copyCode(this, 'code-create-src')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                    <i class="fa-regular fa-copy"></i> <span>Salin Kode</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 overflow-x-auto"><code id="code-create-src" class="language-html">@extends('books.layout')
+
+@section('title', 'Tambah Buku Baru')
+
+@section('content')
+&lt;div class="row justify-content-center"&gt;
+    &lt;div class="col-md-8"&gt;
+        &lt;div class="card shadow-sm border-0"&gt;
+            &lt;div class="card-header bg-primary text-white py-3"&gt;
+                &lt;h3 class="card-title h5 mb-0"&gt;
+                    &lt;i class="bi bi-plus-circle me-2"&gt;&lt;/i&gt;Form Tambah Data Buku Baru
+                &lt;/h3&gt;
+            &lt;/div&gt;
+            &lt;div class="card-body p-4"&gt;
+                &lt;form action="{{ route('books.store') }}" method="POST"&gt;
+                    @csrf
+
+                    &lt;div class="mb-3"&gt;
+                        &lt;label for="kode_buku" class="form-label font-weight-bold"&gt;Kode Buku &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                        &lt;input type="text" class="form-control @error('kode_buku') is-invalid @enderror" id="kode_buku" name="kode_buku" value="{{ old('kode_buku') }}" placeholder="Contoh: BK-001"&gt;
+                        @error('kode_buku')
+                            &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                        @enderror
+                    &lt;/div&gt;
+
+                    &lt;div class="mb-3"&gt;
+                        &lt;label for="judul" class="form-label font-weight-bold"&gt;Judul Buku &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                        &lt;input type="text" class="form-control @error('judul') is-invalid @enderror" id="judul" name="judul" value="{{ old('judul') }}" placeholder="Masukkan judul buku"&gt;
+                        @error('judul')
+                            &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                        @enderror
+                    &lt;/div&gt;
+
+                    &lt;div class="row"&gt;
+                        &lt;div class="col-md-6 mb-3"&gt;
+                            &lt;label for="penulis" class="form-label font-weight-bold"&gt;Penulis &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="text" class="form-control @error('penulis') is-invalid @enderror" id="penulis" name="penulis" value="{{ old('penulis') }}" placeholder="Nama penulis"&gt;
+                            @error('penulis')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+
+                        &lt;div class="col-md-6 mb-3"&gt;
+                            &lt;label for="penerbit" class="form-label font-weight-bold"&gt;Penerbit &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="text" class="form-control @error('penerbit') is-invalid @enderror" id="penerbit" name="penerbit" value="{{ old('penerbit') }}" placeholder="Nama penerbit"&gt;
+                            @error('penerbit')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class="row"&gt;
+                        &lt;div class="col-md-6 mb-3"&gt;
+                            &lt;label for="tahun_terbit" class="form-label font-weight-bold"&gt;Tahun Terbit &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="number" class="form-control @error('tahun_terbit') is-invalid @enderror" id="tahun_terbit" name="tahun_terbit" value="{{ old('tahun_terbit') }}" placeholder="Contoh: {{ date('Y') }}"&gt;
+                            @error('tahun_terbit')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+
+                        &lt;div class="col-md-6 mb-3"&gt;
+                            &lt;label for="stok" class="form-label font-weight-bold"&gt;Stok Buku &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="number" class="form-control @error('stok') is-invalid @enderror" id="stok" name="stok" value="{{ old('stok', 0) }}" min="0" placeholder="Jumlah stok"&gt;
+                            @error('stok')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class="d-flex justify-content-between align-items-center mt-4"&gt;
+                        &lt;a href="{{ route('books.index') }}" class="btn btn-secondary"&gt;
+                            &lt;i class="bi bi-arrow-left me-1"&gt;&lt;/i&gt;Kembali
+                        &lt;/a&gt;
+                        &lt;button type="submit" class="btn btn-primary"&gt;
+                            &lt;i class="bi bi-save me-1"&gt;&lt;/i&gt;Simpan Data Buku
+                        &lt;/button&gt;
+                    &lt;/div&gt;
+                &lt;/form&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+@endsection</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- 5.8 View Edit -->
+                    <div id="code-edit" class="space-y-3 scroll-mt-24">
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span class="text-laravel">5.8</span> Form Edit Buku — <code class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">resources/views/books/edit.blade.php</code>
+                        </h3>
+                        <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                                <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-code text-orange-400"></i> edit.blade.php</span>
+                                <button onclick="copyCode(this, 'code-edit-src')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                    <i class="fa-regular fa-copy"></i> <span>Salin Kode</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 overflow-x-auto"><code id="code-edit-src" class="language-html">@extends('books.layout')
+
+@section('title', 'Edit Data Buku')
+
+@section('content')
+&lt;div class="row justify-content-center"&gt;
+    &lt;div class="col-md-8"&gt;
+        &lt;div class="card shadow-sm border-0"&gt;
+            &lt;div class="card-header bg-warning text-dark py-3"&gt;
+                &lt;h3 class="card-title h5 mb-0"&gt;
+                    &lt;i class="bi bi-pencil-square me-2"&gt;&lt;/i&gt;Form Edit Data Buku
+                &lt;/h3&gt;
+            &lt;/div&gt;
+            &lt;div class="card-body p-4"&gt;
+                &lt;form action="{{ route('books.update', $book-&gt;id) }}" method="POST"&gt;
+                    @csrf
+                    @method('PUT')
+
+                    &lt;div class="mb-3"&gt;
+                        &lt;label for="kode_buku" class="form-label font-weight-bold"&gt;Kode Buku &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                        &lt;input type="text" class="form-control @error('kode_buku') is-invalid @enderror" id="kode_buku" name="kode_buku" value="{{ old('kode_buku', $book-&gt;kode_buku) }}" placeholder="Contoh: BK-001"&gt;
+                        @error('kode_buku')
+                            &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                        @enderror
+                    &lt;/div&gt;
+
+                    &lt;div class="mb-3"&gt;
+                        &lt;label for="judul" class="form-label font-weight-bold"&gt;Judul Buku &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                        &lt;input type="text" class="form-control @error('judul') is-invalid @enderror" id="judul" name="judul" value="{{ old('judul', $book-&gt;judul) }}" placeholder="Masukkan judul buku"&gt;
+                        @error('judul')
+                            &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                        @enderror
+                    &lt;/div&gt;
+
+                    &lt;div class="row"&gt;
+                        &lt;div class="col-md-6 mb-3"&gt;
+                            &lt;label for="penulis" class="form-label font-weight-bold"&gt;Penulis &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="text" class="form-control @error('penulis') is-invalid @enderror" id="penulis" name="penulis" value="{{ old('penulis', $book-&gt;penulis) }}" placeholder="Nama penulis"&gt;
+                            @error('penulis')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+
+                        &lt;div class="col-md-6 mb-3"&gt;
+                            &lt;label for="penerbit" class="form-label font-weight-bold"&gt;Penerbit &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="text" class="form-control @error('penerbit') is-invalid @enderror" id="penerbit" name="penerbit" value="{{ old('penerbit', $book-&gt;penerbit) }}" placeholder="Nama penerbit"&gt;
+                            @error('penerbit')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class="row"&gt;
+                        &lt;div class="col-md-6 mb-3"&gt;
+                            &lt;label for="tahun_terbit" class="form-label font-weight-bold"&gt;Tahun Terbit &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="number" class="form-control @error('tahun_terbit') is-invalid @enderror" id="tahun_terbit" name="tahun_terbit" value="{{ old('tahun_terbit', $book-&gt;tahun_terbit) }}" placeholder="Contoh: {{ date('Y') }}"&gt;
+                            @error('tahun_terbit')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+
+                        &lt;div class="col-md-6 mb-3"&gt;
+                            &lt;label for="stok" class="form-label font-weight-bold"&gt;Stok Buku &lt;span class="text-danger"&gt;*&lt;/span&gt;&lt;/label&gt;
+                            &lt;input type="number" class="form-control @error('stok') is-invalid @enderror" id="stok" name="stok" value="{{ old('stok', $book-&gt;stok) }}" min="0" placeholder="Jumlah stok"&gt;
+                            @error('stok')
+                                &lt;div class="invalid-feedback"&gt;{{ $message }}&lt;/div&gt;
+                            @enderror
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class="d-flex justify-content-between align-items-center mt-4"&gt;
+                        &lt;a href="{{ route('books.index') }}" class="btn btn-secondary"&gt;
+                            &lt;i class="bi bi-arrow-left me-1"&gt;&lt;/i&gt;Batal
+                        &lt;/a&gt;
+                        &lt;button type="submit" class="btn btn-warning text-dark"&gt;
+                            &lt;i class="bi bi-check-lg me-1"&gt;&lt;/i&gt;Perbarui Data Buku
+                        &lt;/button&gt;
+                    &lt;/div&gt;
+                &lt;/form&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+@endsection</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- 5.9 View Show -->
+                    <div id="code-show" class="space-y-3 scroll-mt-24">
+                        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <span class="text-laravel">5.9</span> Detail Buku — <code class="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded text-slate-700 dark:text-slate-300">resources/views/books/show.blade.php</code>
+                        </h3>
+                        <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                            <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                                <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-code text-orange-400"></i> show.blade.php</span>
+                                <button onclick="copyCode(this, 'code-show-src')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                    <i class="fa-regular fa-copy"></i> <span>Salin Kode</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 overflow-x-auto"><code id="code-show-src" class="language-html">@extends('books.layout')
+
+@section('title', 'Detail Buku - ' . $book-&gt;judul)
+
+@section('content')
+&lt;div class="row justify-content-center"&gt;
+    &lt;div class="col-md-8"&gt;
+        &lt;div class="card shadow-sm border-0"&gt;
+            &lt;div class="card-header bg-info text-white py-3 d-flex justify-content-between align-items-center"&gt;
+                &lt;h3 class="card-title h5 mb-0"&gt;
+                    &lt;i class="bi bi-info-circle me-2"&gt;&lt;/i&gt;Detail Informasi Buku
+                &lt;/h3&gt;
+                &lt;span class="badge bg-light text-dark font-monospace fs-6"&gt;{{ $book-&gt;kode_buku }}&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;div class="card-body p-4"&gt;
+                &lt;div class="mb-4"&gt;
+                    &lt;h4 class="text-primary fw-bold mb-1"&gt;{{ $book-&gt;judul }}&lt;/h4&gt;
+                    &lt;p class="text-muted mb-0"&gt;&lt;i class="bi bi-person me-1"&gt;&lt;/i&gt;Penulis: &lt;strong&gt;{{ $book-&gt;penulis }}&lt;/strong&gt;&lt;/p&gt;
+                &lt;/div&gt;
+
+                &lt;hr&gt;
+
+                &lt;div class="row g-3"&gt;
+                    &lt;div class="col-sm-6"&gt;
+                        &lt;div class="p-3 bg-light rounded"&gt;
+                            &lt;small class="text-muted d-block mb-1"&gt;&lt;i class="bi bi-building me-1"&gt;&lt;/i&gt;Penerbit&lt;/small&gt;
+                            &lt;span class="fw-semibold text-dark"&gt;{{ $book-&gt;penerbit }}&lt;/span&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-sm-6"&gt;
+                        &lt;div class="p-3 bg-light rounded"&gt;
+                            &lt;small class="text-muted d-block mb-1"&gt;&lt;i class="bi bi-calendar-event me-1"&gt;&lt;/i&gt;Tahun Terbit&lt;/small&gt;
+                            &lt;span class="fw-semibold text-dark"&gt;{{ $book-&gt;tahun_terbit }}&lt;/span&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-sm-6"&gt;
+                        &lt;div class="p-3 bg-light rounded"&gt;
+                            &lt;small class="text-muted d-block mb-1"&gt;&lt;i class="bi bi-box-seam me-1"&gt;&lt;/i&gt;Jumlah Stok&lt;/small&gt;
+                            @if ($book-&gt;stok &gt; 0)
+                                &lt;span class="badge bg-success fs-6"&gt;{{ $book-&gt;stok }} Unit&lt;/span&gt;
+                            @else
+                                &lt;span class="badge bg-danger fs-6"&gt;Stok Habis&lt;/span&gt;
+                            @endif
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="col-sm-6"&gt;
+                        &lt;div class="p-3 bg-light rounded"&gt;
+                            &lt;small class="text-muted d-block mb-1"&gt;&lt;i class="bi bi-clock-history me-1"&gt;&lt;/i&gt;Tanggal Ditambahkan&lt;/small&gt;
+                            &lt;span class="fw-semibold text-dark"&gt;{{ $book-&gt;created_at ? $book-&gt;created_at-&gt;format('d M Y, H:i') : '-' }}&lt;/span&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+
+                &lt;div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top"&gt;
+                    &lt;a href="{{ route('books.index') }}" class="btn btn-secondary"&gt;
+                        &lt;i class="bi bi-arrow-left me-1"&gt;&lt;/i&gt;Kembali ke Daftar Buku
+                    &lt;/a&gt;
+                    &lt;div class="btn-group"&gt;
+                        &lt;a href="{{ route('books.edit', $book-&gt;id) }}" class="btn btn-warning text-dark"&gt;
+                            &lt;i class="bi bi-pencil-square me-1"&gt;&lt;/i&gt;Edit Data
+                        &lt;/a&gt;
+                        &lt;form action="{{ route('books.destroy', $book-&gt;id) }}" method="POST" class="d-inline"&gt;
+                            @csrf
+                            @method('DELETE')
+                            &lt;button type="submit" class="btn btn-danger ms-1" onclick="return confirm('Apakah Anda yakin ingin menghapus data buku ini?')"&gt;
+                                &lt;i class="bi bi-trash me-1"&gt;&lt;/i&gt;Hapus
+                            &lt;/button&gt;
+                        &lt;/form&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+@endsection</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. Menjalankan Aplikasi -->
+                <section id="menjalankan" class="doc-section space-y-4 scroll-mt-24">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="w-8 h-8 rounded-lg bg-laravel/10 text-laravel flex items-center justify-center font-bold">6</span>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Menjalankan Aplikasi</h2>
+                    </div>
+
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Jalankan urutan perintah berikut pada terminal proyek:</p>
+
+                    <div class="code-block-wrapper rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-lg">
+                        <div class="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400">
+                            <span class="flex items-center gap-2 font-mono"><i class="fa-solid fa-play text-laravel"></i> Perintah Eksekusi</span>
+                            <button onclick="copyCode(this, 'code-run-app')" class="hover:text-white flex items-center gap-1 transition-colors">
+                                <i class="fa-regular fa-copy"></i> <span>Salin</span>
+                            </button>
+                        </div>
+                        <pre class="p-4 overflow-x-auto"><code id="code-run-app" class="language-powershell"># 1. Jalankan migrasi database
+php artisan migrate
+
+# 2. Periksa daftar route yang terdaftar
+php artisan route:list --path=books
+
+# 3. Jalankan server lokal Laravel
+php artisan serve</code></pre>
+                    </div>
+
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Buka browser dan kunjungi alamat: <code class="text-laravel bg-laravel/10 px-2 py-0.5 rounded font-mono text-xs">http://127.0.0.1:8000</code></p>
+
+                    <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs space-y-2">
+                        <p><strong>Tips Migration Fresh:</strong> Jika pernah menjalankan migration kosongan sebelumnya, perbarui struktur database dengan:</p>
+                        <code class="block bg-slate-900 text-amber-300 p-2 rounded font-mono">php artisan migrate:fresh</code>
+                        <p class="text-slate-500 dark:text-slate-400"><em>Peringatan: `migrate:fresh` akan menghapus seluruh data pada database lokal Anda.</em></p>
+                    </div>
+                </section>
+
+                <!-- 7. Penjelasan Alur MVC -->
+                <section id="alur-mvc" class="doc-section space-y-4 scroll-mt-24">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="w-8 h-8 rounded-lg bg-laravel/10 text-laravel flex items-center justify-center font-bold">7</span>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Penjelasan Alur Request MVC</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-center">
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <span class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 inline-flex items-center justify-center font-bold text-xs text-laravel">1</span>
+                            <h4 class="font-bold text-xs text-slate-800 dark:text-white">Browser / User</h4>
+                            <p class="text-[11px] text-slate-500">Mengirim request URL (Contoh: `GET /books`).</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <span class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 inline-flex items-center justify-center font-bold text-xs text-laravel">2</span>
+                            <h4 class="font-bold text-xs text-slate-800 dark:text-white">Routing (web.php)</h4>
+                            <p class="text-[11px] text-slate-500">Meneruskan request ke Controller yang sesuai.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <span class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 inline-flex items-center justify-center font-bold text-xs text-laravel">3</span>
+                            <h4 class="font-bold text-xs text-slate-800 dark:text-white">Controller</h4>
+                            <p class="text-[11px] text-slate-500">Menjalankan logika, validasi, & memanggil Model.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <span class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 inline-flex items-center justify-center font-bold text-xs text-laravel">4</span>
+                            <h4 class="font-bold text-xs text-slate-800 dark:text-white">Model (Book)</h4>
+                            <p class="text-[11px] text-slate-500">Membaca / menulis data pada database SQLite.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <span class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700 inline-flex items-center justify-center font-bold text-xs text-laravel">5</span>
+                            <h4 class="font-bold text-xs text-slate-800 dark:text-white">View (Blade)</h4>
+                            <p class="text-[11px] text-slate-500">Merender tampilan HTML dan menampilkan ke user.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. Pengujian Manual -->
+                <section id="pengujian" class="doc-section space-y-4 scroll-mt-24">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="w-8 h-8 rounded-lg bg-laravel/10 text-laravel flex items-center justify-center font-bold">8</span>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Skenario Pengujian Aplikasi</h2>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <h4 class="font-bold text-sm text-laravel flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i> Skenario A: Membuka Daftar Buku
+                            </h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">Akses <code>/</code>, pastikan redirect otomatis ke <code>/books</code> dan tabel muncul.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <h4 class="font-bold text-sm text-laravel flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i> Skenario B: Menambah Buku (Input Valid)
+                            </h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">Isi data: Kode=BK-001, Judul=Belajar Laravel, Penulis=Ayu Pratama, Penerbit=Pustaka Sekolah, Tahun=2024, Stok=5. Pastikan data berhasil tersimpan.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <h4 class="font-bold text-sm text-laravel flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i> Skenario C: Memeriksa Validasi Form
+                            </h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">Kirim form kosong, atau gunakan Kode Buku ganda (`BK-001`). Pastikan pesan kesalahan validasi muncul.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <h4 class="font-bold text-sm text-laravel flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i> Skenario D & E: Detail & Edit Buku
+                            </h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">Uji tombol detail untuk melihat rincian. Uji tombol edit dan pastikan data lama otomatis terisi pada form.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                            <h4 class="font-bold text-sm text-laravel flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i> Skenario F: Hapus Buku
+                            </h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">Klik tombol hapus. Pastikan popup dialog konfirmasi muncul sebelum data dihapus dari database.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 9. Ringkasan Route -->
+                <section id="ringkasan-route" class="doc-section space-y-4 scroll-mt-24">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <span class="w-8 h-8 rounded-lg bg-laravel/10 text-laravel flex items-center justify-center font-bold">9</span>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Ringkasan Resource Route Laravel</h2>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-3 border-b border-slate-200 dark:border-slate-700">HTTP Method</th>
+                                    <th class="p-3 border-b border-slate-200 dark:border-slate-700">URI / Endpoint</th>
+                                    <th class="p-3 border-b border-slate-200 dark:border-slate-700">Nama Route</th>
+                                    <th class="p-3 border-b border-slate-200 dark:border-slate-700">Method Controller</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-800 font-mono text-slate-600 dark:text-slate-400">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-bold">GET</span></td>
+                                    <td class="p-3 text-slate-900 dark:text-slate-200">/books</td>
+                                    <td class="p-3">books.index</td>
+                                    <td class="p-3 text-laravel">index</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-bold">GET</span></td>
+                                    <td class="p-3 text-slate-900 dark:text-slate-200">/books/create</td>
+                                    <td class="p-3">books.create</td>
+                                    <td class="p-3 text-laravel">create</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold">POST</span></td>
+                                    <td class="p-3 text-slate-900 dark:text-slate-200">/books</td>
+                                    <td class="p-3">books.store</td>
+                                    <td class="p-3 text-laravel">store</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-bold">GET</span></td>
+                                    <td class="p-3 text-slate-900 dark:text-slate-200">/books/{book}</td>
+                                    <td class="p-3">books.show</td>
+                                    <td class="p-3 text-laravel">show</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-bold">GET</span></td>
+                                    <td class="p-3 text-slate-900 dark:text-slate-200">/books/{book}/edit</td>
+                                    <td class="p-3">books.edit</td>
+                                    <td class="p-3 text-laravel">edit</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-bold">PUT/PATCH</span></td>
+                                    <td class="p-3 text-slate-900 dark:text-slate-200">/books/{book}</td>
+                                    <td class="p-3">books.update</td>
+                                    <td class="p-3 text-laravel">update</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-red-500/10 text-red-500 font-bold">DELETE</span></td>
+                                    <td class="p-3 text-slate-900 dark:text-slate-200">/books/{book}</td>
+                                    <td class="p-3">books.destroy</td>
+                                    <td class="p-3 text-laravel">destroy</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Footer Page -->
+                <footer class="pt-8 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+                    <p>&copy; 2026 SMK Multi Karya &bull; Konsentrasi Keahlian Rekayasa Perangkat Lunak (RPL)</p>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // 1. Highlight.js Initialization
+        document.addEventListener('DOMContentLoaded', (event) => {
+            hljs.highlightAll();
+        });
+
+        // 2. Dark Mode Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const hljsThemeLink = document.getElementById('hljs-theme');
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            if (isDark) {
+                hljsThemeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                hljsThemeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Load Saved Theme Choice
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+            hljsThemeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+        }
+
+        // 3. Copy Code Functionality (iFrame fallback compatible)
+        function copyCode(button, codeId) {
+            const codeEl = document.getElementById(codeId);
+            if (!codeEl) return;
+
+            const textToCopy = codeEl.innerText || codeEl.textContent;
+
+            // Fallback strategy using hidden textarea for iframe & browser compatibility
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('Kode berhasil disalin!');
+                    
+                    // Button state update
+                    const originalHTML = button.innerHTML;
+                    button.innerHTML = `<i class="fa-solid fa-check text-green-400"></i> <span class="text-green-400">Tersalin!</span>`;
+                    setTimeout(() => {
+                        button.innerHTML = originalHTML;
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Gagal menyalin:', err);
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // 4. Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // 5. Mobile Sidebar Drawer Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            sidebarBackdrop.classList.remove('hidden');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            sidebarBackdrop.classList.add('hidden');
+        }
+
+        mobileMenuBtn?.addEventListener('click', openSidebar);
+        closeSidebarBtn?.addEventListener('click', closeSidebar);
+        sidebarBackdrop?.addEventListener('click', closeSidebar);
+
+        // Close sidebar on clicking link on mobile
+        document.querySelectorAll('#toc-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 1024) closeSidebar();
+            });
+        });
+
+        // 6. Search Filter Logic
+        const searchInput = document.getElementById('doc-search');
+        searchInput?.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const sections = document.querySelectorAll('.doc-section, .code-block-wrapper');
+
+            sections.forEach(sec => {
+                const text = sec.textContent.toLowerCase();
+                if (text.includes(query) || query === '') {
+                    sec.style.display = '';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
+        });
+
+        // 7. Active Table of Contents Highlighting on Scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    document.querySelectorAll('#toc-nav a').forEach(a => {
+                        a.classList.remove('text-laravel', 'font-semibold', 'bg-laravel/10');
+                        if (a.getAttribute('href') === `#${id}`) {
+                            a.classList.add('text-laravel', 'font-semibold', 'bg-laravel/10');
+                        }
+                    });
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll('.doc-section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
